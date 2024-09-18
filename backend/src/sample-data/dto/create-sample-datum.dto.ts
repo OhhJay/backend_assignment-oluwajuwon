@@ -12,11 +12,11 @@ export class CreateSampleDatumDto {
 
   @IsOptional()
   @IsDateString()
-  createdAt?: string;
+  createdAt?: Date;
 
   @IsOptional()
   @IsDateString()
-  updatedAt?: string;
+  updatedAt?: Date;
 
   @IsOptional()
   @IsInt()
