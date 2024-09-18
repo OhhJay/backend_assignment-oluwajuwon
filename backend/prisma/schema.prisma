@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model user {
+  id          Int              @id @default(autoincrement())
+  firstname   String?          @db.VarChar(255)
+  lastname    String?          @db.VarChar(255)
+  email       String?          @unique(map: "email") @db.VarChar(255)
+  token       String?          @db.Text
+  password    String?          @db.Text
+  documents   Document[]
+  roles       userRole[]
+  permissions userPermission[]
+}
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique @db.VarChar(255)
+  description String?      @db.Text
+  permissions Permission[]
+  users       userRole[]
+}
+
+model Permission {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique @db.VarChar(255)
+  description    String?          @db.Text
+  roles          Role[]
+  userPermission userPermission[]
+}
+
+model userRole {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  roleId Int
+  user   user @relation(fields: [userId], references: [id])
+  role   Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId], name: "unique_user_role")
+}
+
+model userPermission {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  permissionId Int
+  user         user       @relation(fields: [userId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([userId, permissionId], name: "unique_user_permission")
+}
+
+model PermissionToRole {
+  A Int
+  B Int
+
+  @@unique([A, B], map: "_PermissionToRole_AB_unique")
+  @@index([B], map: "_PermissionToRole_B_index")
+  @@map("_PermissionToRole")
+}
+
+model Document {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  content       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  uploadedBy    Int?
+  sensitiveData String? // This field requires specific permissions to view
+
+  // Relations
+  uploadedByUser user? @relation(fields: [uploadedBy], references: [id])
+}
