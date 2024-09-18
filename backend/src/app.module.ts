@@ -13,9 +13,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { config } from './utils/config';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { SampleDataModule } from './sample-data/sample-data.module';
+import { FtpModule } from './ftp/ftp.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     JwtModule.register({
       secret: config.jwt.secret,
       signOptions: {
@@ -31,6 +34,7 @@ import { SampleDataModule } from './sample-data/sample-data.module';
     DatabasesModule,
     AuthModule,
     SampleDataModule,
+    FtpModule,
   ],
   controllers: [AppController],
   providers: [AppService, UserService, RolesPermissionsGuard,JwtAuthGuard],
